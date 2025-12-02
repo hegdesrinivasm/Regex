@@ -51,8 +51,9 @@ void regex_create(Regex *regex, const char *re) {
     parser_destroy(&parser);
 
     // At max automata might be in all the states nfa.
-    regex->cur_states = (State **)malloc(sizeof(State *) * regex->total_states);
-    regex->new_states = (State **)malloc(sizeof(State *) * regex->total_states);
+    // TODO: This is temporary solution (+2)
+    regex->cur_states = (State **)malloc(sizeof(State *) * (regex->total_states + 2));
+    regex->new_states = (State **)malloc(sizeof(State *) * (regex->total_states + 2));
 
     regex_reset(regex);
 }
@@ -102,6 +103,32 @@ void regex_reset(Regex *regex) {
     regex_swap_cur_and_new(regex);
 
     regex->matched = false;
+}
+
+bool regex_pattern_in_text(Regex *regex, const char *text) {
+    State *branch = state_create(BRANCH);
+    State *any_char = state_create(ANY_CHAR);
+
+    // Any char loop
+    branch->out1 = any_char;
+    any_char->out = branch;
+
+    branch->out = regex->start;
+    regex->start = branch;
+
+    regex_reset(regex);
+
+    // Do regex pattern check on text
+    bool matched = false;
+
+    for (int i = 0; text[i] && !matched; ++i, matched = regex_step(regex, text[i]));
+
+    regex->start = branch->out;
+
+    free(branch);
+    free(any_char);
+    
+    return matched;
 }
 
 static void regex_add_state_to_new_states(Regex *regex, State *state) {

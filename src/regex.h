@@ -52,5 +52,15 @@ bool regex_step(Regex *regex, char input);
  */
 void regex_reset(Regex *regex);
 
+/**
+ * @brief Searches given entire text for regex pattern.
+ *
+ * @param regex Pointer to the regex state
+ * @param text The text to look for pattern
+ *
+ * @return ture if text contains regex pattern
+ */
+bool regex_pattern_in_text(Regex *regex, const char *text);
+
 // void regex_run(Regex *regex, const char *input_line);
 

@@ -1,6 +1,7 @@
 #include "parser.h"
 
 #include <stdbool.h>
+#include <stdlib.h>
 
 /**
  * @enum RepetitionType

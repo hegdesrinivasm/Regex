@@ -17,11 +17,12 @@ int main(int argc, const char **argv) {
     regex_create(&regex, re);
 
     bool matched = false;
-    for (int i = 0; text[i] && !matched; ++i) {
-        regex_reset(&regex);
-        for (int j = i; text[j] && !matched; ++j)
-            matched = regex_step(&regex, text[j]);
-    }
+    // for (int i = 0; text[i] && !matched; ++i) {
+    //     regex_reset(&regex);
+    //     for (int j = i; text[j] && !matched; ++j)
+    //         matched = regex_step(&regex, text[j]);
+    // }
+    matched = regex_pattern_in_text(&regex, text);
 
     if (matched) printf("MATCHED!!!\n");
     else printf("NOT MATCHED!!!\n");
