@@ -1,7 +1,6 @@
 #include "parser.h"
 
 #include <stdbool.h>
-#include <stdlib.h>
 
 /**
  * @enum RepetitionType
@@ -248,7 +247,7 @@ State *parser_parse(Parser *parser) {
     // Discard the dummy state
     State *temp = head;
     head = head->out;
-    free(temp);
+    state_destroy(temp);
 
     return head;
 }

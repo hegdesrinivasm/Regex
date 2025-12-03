@@ -1,9 +1,10 @@
 #include "state.h"
 
 #include <stdlib.h>
+#include "memory.h"
 
 State *state_create(int c) {
-    State *state = (State *)malloc(sizeof(State));
+    State *state = (State *)memory_allocate(sizeof(State));
     if (!state) return state;
 
     *state = (State){0};
@@ -13,5 +14,5 @@ State *state_create(int c) {
 }
 
 void state_destroy(State *state) {
-    free(state);
+    memory_free(state);
 }

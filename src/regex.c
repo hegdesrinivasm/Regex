@@ -1,8 +1,8 @@
 #include "regex.h"
 
 #include "parser.h"
-
-#include <stdlib.h>
+#include "memory.h"
+#include "utils.h"
 #include <stdio.h>
 
 /**
@@ -52,8 +52,8 @@ void regex_create(Regex *regex, const char *re) {
 
     // At max automata might be in all the states nfa.
     // TODO: This is temporary solution (+2)
-    regex->cur_states = (State **)malloc(sizeof(State *) * (regex->total_states + 2));
-    regex->new_states = (State **)malloc(sizeof(State *) * (regex->total_states + 2));
+    regex->cur_states = (State **)memory_allocate(sizeof(State *) * (regex->total_states + 2));
+    regex->new_states = (State **)memory_allocate(sizeof(State *) * (regex->total_states + 2));
 
     regex_reset(regex);
 }
@@ -67,12 +67,12 @@ void regex_destroy(Regex *regex) {
 
     regex_collect_states(regex, regex->start);
 
-    if (regex->new_states_len != regex->total_states) printf("Error: Not all states destroyed\n");
+    if (regex->new_states_len != regex->total_states) QUIT_WITH_FATAL_MSG("Error: Not all states destroyed");
 
     for (int i = 0; i < regex->new_states_len; ++i) state_destroy(regex->new_states[i]);
 
-    free(regex->cur_states);
-    free(regex->new_states);
+    memory_free(regex->cur_states);
+    memory_free(regex->new_states);
 }
 
 bool regex_step(Regex *regex, char input) {
@@ -125,8 +125,8 @@ bool regex_pattern_in_text(Regex *regex, const char *text) {
 
     regex->start = branch->out;
 
-    free(branch);
-    free(any_char);
+    memory_free(branch);
+    memory_free(any_char);
     
     return matched;
 }

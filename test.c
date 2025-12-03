@@ -1,10 +1,13 @@
 #include <stdio.h>
 
 #include "src/regex.h"
+#include "src/memory.h"
+#include "src/logger.h"
 
 int main(int argc, const char **argv) {
     if (argc != 3) {
-        printf("Usage: regexer \"<text>\" \"<regex>\"\n");
+        LOG_ERROR("Error with arguments. Requried 2 arguments but %d were given", argc - 1);
+        LOG_INFO("Usage: regexer \"<text>\" \"<regex>\"");
         return -1;
     }
 
@@ -15,6 +18,7 @@ int main(int argc, const char **argv) {
 
     Regex regex;
     regex_create(&regex, re);
+    print_memory_usage();
 
     bool matched = false;
     // for (int i = 0; text[i] && !matched; ++i) {
@@ -24,8 +28,9 @@ int main(int argc, const char **argv) {
     // }
     matched = regex_pattern_in_text(&regex, text);
 
-    if (matched) printf("MATCHED!!!\n");
-    else printf("NOT MATCHED!!!\n");
+    if (matched) LOG_INFO("MATCHED!!!");
+    else LOG_INFO("NOT MATCHED!!!");
 
     regex_destroy(&regex);
+    print_memory_usage();
 }
