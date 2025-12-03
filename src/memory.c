@@ -35,11 +35,13 @@ void memory_free(void *ptr) {
     free(ptr);
 }
 
-void print_memory_usage(void) {
-    LOG_INFO("Allocation count: %lu", allocation_count);
+static double format_ext_and_get_size(size_t bytes, char *ext) {
+    double size = bytes;
+    ext[0] = 'X';
+    ext[1] = 'i';
+    ext[2] = 'B';
+    ext[3] = 0;
 
-    double size = allocated_bytes;
-    char ext[] = {'X', 'i', 'B', 0};
     if (size > GIB) {
         size /= (double)GIB;
         ext[0] = 'G';
@@ -54,6 +56,22 @@ void print_memory_usage(void) {
         ext[1] = 0;
     }
 
-    LOG_INFO("Allocation size: %.4lf%s", size, (char *)ext);
+    return size;
+}
+
+void print_memory_usage(void) {
+    LOG_INFO("Allocation count: %lu", allocation_count);
+
+    char ext[4];
+    double size;
+
+    size = format_ext_and_get_size(allocated_bytes, ext);
+    LOG_INFO("Allocation size: %.4lf %s", size, ext);
+
+    size = format_ext_and_get_size(HEADER_SIZE * allocation_count, ext);
+    LOG_DEBUG("Memory used for the header: %.4lf %s", size, ext);
+
+    size = format_ext_and_get_size(allocated_bytes + (HEADER_SIZE * allocation_count), ext);
+    LOG_DEBUG("Total memory used: %.4lf %s", size, ext);
 }
 
