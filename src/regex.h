@@ -1,6 +1,7 @@
 #pragma once
 
 #include "state.h"
+#include <stdbool.h>
 
 /**
  * @struct regex.h

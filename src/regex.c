@@ -3,6 +3,7 @@
 #include "parser.h"
 #include "memory.h"
 #include "utils.h"
+
 #include <stdio.h>
 
 /**
@@ -82,6 +83,7 @@ bool regex_step(Regex *regex, char input) {
         switch (regex->cur_states[i]->c) {
             default:
                 if (input != regex->cur_states[i]->c) break;
+                /* fallthrough */
             case ANY_CHAR:
                 regex_add_state_to_new_states(regex, regex->cur_states[i]->out);
                 break;
@@ -135,6 +137,7 @@ static void regex_add_state_to_new_states(Regex *regex, State *state) {
     switch (state->c) {
         case BRANCH:
             regex_add_state_to_new_states(regex, state->out1);
+            /* fallthrough */
         case EPSILON:
             regex_add_state_to_new_states(regex, state->out);
             return;

@@ -100,6 +100,7 @@ static int parser_parse_character(Parser *parser) {
     switch (parser->src[parser->index]) {
         case '\\': /** for escaping the special characters (ex: \*) */
             parser->index++;
+            /* fallthrough */
         default: /** Anything (if the special characters are in the first, then they are directly taken as the characters */
             input = parser->src[parser->index];
             break;
