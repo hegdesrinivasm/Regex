@@ -30,7 +30,9 @@ build/regexer "text" "regex-pattern"
 '+' -> One or more repetition of previous character  
 '?' -> Zero or one repetition of previous character  
 '.' -> Matches any single character  
-'\\' -> Escape character
+'\\' -> Escape character  
+'^' -> Matches beginning of line  
+'$' -> Matches end of line  
 
 ## Examples
 ```sh
@@ -39,4 +41,8 @@ build/regexer "somebody saw nobody" "sa?w"
 build/regexer "somebody sw nobody" "sa*w"
 build/regexer "somebody saaw nobody" "sa+w"
 build/regexer "somebody sa+w nobody" "sa\+w"
+build/regexer "somebody saw nobody" "^some"
+build/regexer "somebody saw nobody" "^saw"
+build/regexer "somebody saw nobody" "y$"
+build/regexer "somebody saw nobody" "^some.*y$"
 ```

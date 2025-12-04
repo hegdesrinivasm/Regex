@@ -5,10 +5,13 @@
  * @brief Enum to represent special characters.
  */
 typedef enum Character {
+    LINE_END = 10, /**< Match end of line */
     ANY_CHAR = 256, /**< Match any character */
-    MATCH = 257, /**< Pattern matched (accepting state) */
-    BRANCH = 258, /**< Without consuming character go in both outs */
-    EPSILON = 259, /**< Go without consuming character */
+    MATCH, /**< Pattern matched (accepting state) */
+    BRANCH, /**< Without consuming character go in both outs */
+    EPSILON, /**< Go without consuming character */
+    LINE_START, /**< Match start of line */
+    DEAD, /**< Dead state */
 } Character;
 
 typedef struct State State;

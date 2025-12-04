@@ -52,9 +52,8 @@ void regex_create(Regex *regex, const char *re) {
     parser_destroy(&parser);
 
     // At max automata might be in all the states nfa.
-    // TODO: This is temporary solution (+2)
-    regex->cur_states = (State **)memory_allocate(sizeof(State *) * (regex->total_states + 2));
-    regex->new_states = (State **)memory_allocate(sizeof(State *) * (regex->total_states + 2));
+    regex->cur_states = (State **)memory_allocate(sizeof(State *) * regex->total_states);
+    regex->new_states = (State **)memory_allocate(sizeof(State *) * regex->total_states);
 
     regex_reset(regex);
 }
@@ -64,11 +63,10 @@ void regex_destroy(Regex *regex) {
     // Collect and destroy all states
     regex->cur_states_len = 0;
     regex->new_states_len = 0;
-    regex->matched = false;
 
     regex_collect_states(regex, regex->start);
 
-    if (regex->new_states_len != regex->total_states) QUIT_WITH_FATAL_MSG("Error: Not all states destroyed");
+    if (regex->new_states_len != regex->total_states) QUIT_WITH_FATAL_MSG("Not all states destroyed");
 
     for (int i = 0; i < regex->new_states_len; ++i) state_destroy(regex->new_states[i]);
 
@@ -77,10 +75,13 @@ void regex_destroy(Regex *regex) {
 }
 
 bool regex_step(Regex *regex, char input) {
-    if (regex->matched) return true;
-
     for (int i = 0; i < regex->cur_states_len; ++i) {
         switch (regex->cur_states[i]->c) {
+            case MATCH:
+                regex->cur_states[i]->out
+                    ? regex_add_state_to_new_states(regex, regex->cur_states[i]->out)
+                    : regex_add_state_to_new_states(regex, regex->cur_states[i]);
+                break;
             default:
                 if (input != regex->cur_states[i]->c) break;
                 /* fallthrough */
@@ -88,13 +89,14 @@ bool regex_step(Regex *regex, char input) {
                 regex_add_state_to_new_states(regex, regex->cur_states[i]->out);
                 break;
         }
-
-        if (regex->matched) return true;
     }
 
     regex_swap_cur_and_new(regex);
 
-    return regex->matched; // will be false
+    // Check whether the machine is currently in accepting state
+    if (regex->match && (regex->match->id < regex->cur_states_len) && (regex->match == regex->cur_states[regex->match->id]))
+        return true;
+    else return false;
 }
 
 void regex_reset(Regex *regex) {
@@ -103,33 +105,12 @@ void regex_reset(Regex *regex) {
 
     regex_add_state_to_new_states(regex, regex->start);
     regex_swap_cur_and_new(regex);
-
-    regex->matched = false;
 }
 
-bool regex_pattern_in_text(Regex *regex, const char *text) {
-    State *branch = state_create(BRANCH);
-    State *any_char = state_create(ANY_CHAR);
-
-    // Any char loop
-    branch->out1 = any_char;
-    any_char->out = branch;
-
-    branch->out = regex->start;
-    regex->start = branch;
-
+bool regex_pattern_in_line(Regex *regex, const char *line) {
     regex_reset(regex);
-
-    // Do regex pattern check on text
     bool matched = false;
-
-    for (int i = 0; text[i] && !matched; ++i, matched = regex_step(regex, text[i]));
-
-    regex->start = branch->out;
-
-    memory_free(branch);
-    memory_free(any_char);
-    
+    for (int i = 0; line[i]; ++i) matched = regex_step(regex, line[i]);
     return matched;
 }
 
@@ -142,8 +123,9 @@ static void regex_add_state_to_new_states(Regex *regex, State *state) {
             regex_add_state_to_new_states(regex, state->out);
             return;
         case MATCH:
-            regex->matched = true;
-            return;
+            // NOTE: Thompson's nfa has exactly one accepting state
+            regex->match = state;
+            break;
     }
 
     if (state->id < regex->new_states_len && regex->new_states[state->id] == state) return;

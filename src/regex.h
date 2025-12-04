@@ -8,7 +8,8 @@
  * @brief Regex state structure.
  */
 typedef struct Regex {
-    State *start; /**< Start state of nfa */
+    State *start; /**< Pointer to start state of nfa */
+    State *match; /**< Pointer to matching state of nfa */
 
     int total_states; /**< Total number of states in nfa */
 
@@ -17,8 +18,6 @@ typedef struct Regex {
 
     State **new_states; /**< Set of new states the nfa will be on getting input */
     int new_states_len; /**< Length of the new states set */
-
-    bool matched; /**< The regex matched or not */
 } Regex;
 
 /**
@@ -54,14 +53,14 @@ bool regex_step(Regex *regex, char input);
 void regex_reset(Regex *regex);
 
 /**
- * @brief Searches given entire text for regex pattern.
+ * @brief Searches given entire line for regex pattern.
  *
  * @param regex Pointer to the regex state
- * @param text The text to look for pattern
+ * @param line The line to look for pattern
  *
- * @return ture if text contains regex pattern
+ * @return ture if line contains regex pattern
  */
-bool regex_pattern_in_text(Regex *regex, const char *text);
+bool regex_pattern_in_line(Regex *regex, const char *line);
 
 // void regex_run(Regex *regex, const char *input_line);
 

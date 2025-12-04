@@ -143,6 +143,18 @@ static bool parser_get_next_token(Parser *parser, Token *token) {
     // If parsing is completed, return false
     if (!parser->src[parser->index]) return false;
 
+    if (parser->index == 0 && parser->src[parser->index] == '^') {
+        token->input = LINE_START;
+        token->repetition = REPETITION_TYPE_ONCE;
+        parser->index++;
+        return true;
+    } else if (!parser->src[parser->index + 1] && parser->src[parser->index] == '$') {
+        token->input = LINE_END;
+        token->repetition = REPETITION_TYPE_ONCE;
+        parser->index++;
+        return true;
+    }
+
     token->input = parser_parse_character(parser);
     token->repetition = parser_parse_repetition(parser);
 
@@ -227,7 +239,29 @@ State *parser_parse(Parser *parser) {
     parser->cur = &head->out;
 
     Token token;
-    while (parser_get_next_token(parser, &token)) {
+    if (parser_get_next_token(parser, &token) && token.input != LINE_START) {
+        // Create a infinity loop matching any character in the beginning so that
+        // nfa does not die when first character doesn't match
+        State *branch = state_create(BRANCH);
+        State *any_char = state_create(ANY_CHAR);
+
+        // branch's one out goes to any_char
+        branch->out1 = any_char;
+        // any_char's output goes back to branch
+        any_char->out = branch;
+
+        // Previous fragment's output goes to branch
+        *parser->cur = branch;
+        // branch's out goes to next fragment
+        parser->cur = &branch->out;
+
+        parser->total_states += 2;
+
+        // Make the parser read from start again
+        parser_reset(parser);
+    }
+
+    while (parser_get_next_token(parser, &token) && token.input != LINE_END) {
         switch (token.repetition) {
             case REPETITION_TYPE_ONCE:
                 parser_add_repetition_once(parser, token.input);
@@ -245,8 +279,15 @@ State *parser_parse(Parser *parser) {
     }
 
     // Add a state with match to indicate accepting state
-    *parser->cur = state_create(MATCH);
+    State *match = state_create(MATCH);
+    *parser->cur = match;
+    parser->cur = &match->out;
     parser->total_states++;
+
+    if (token.input == LINE_END) {
+        *parser->cur = state_create(DEAD);
+        parser->total_states++;
+    }
 
     // Discard the dummy state
     State *temp = head;

@@ -4,6 +4,8 @@
 #include "src/memory.h"
 #include "src/logger.h"
 
+#include <stdbool.h>
+
 int main(int argc, const char **argv) {
     if (argc != 3) {
         LOG_ERROR("Error with arguments. Requried 2 arguments but %d were given", argc - 1);
@@ -26,7 +28,9 @@ int main(int argc, const char **argv) {
     //     for (int j = i; text[j] && !matched; ++j)
     //         matched = regex_step(&regex, text[j]);
     // }
-    matched = regex_pattern_in_text(&regex, text);
+    // matched = regex_pattern_in_text(&regex, text);
+    // for (int i = 0; text[i]; ++i) matched = regex_step(&regex, text[i]);
+    matched = regex_pattern_in_line(&regex, text);
 
     if (matched) LOG_INFO("MATCHED!!!");
     else LOG_INFO("NOT MATCHED!!!");
