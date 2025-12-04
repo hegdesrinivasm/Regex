@@ -22,5 +22,21 @@ and then you can open the `build/docs/output/html/index.html` in browser.
 
 The executable is built in build directory and named regexer. To run, execute
 ```sh
-build/regexer
+build/regexer "text" "regex-pattern"
+```
+
+## Supported regex meta characters
+'*' -> Zero or more repetition of previous character  
+'+' -> One or more repetition of previous character  
+'?' -> Zero or one repetition of previous character  
+'.' -> Matches any single character  
+'\\' -> Escape character
+
+## Examples
+```sh
+build/regexer "somebody saw nobody" "saw"
+build/regexer "somebody saw nobody" "sa?w"
+build/regexer "somebody sw nobody" "sa*w"
+build/regexer "somebody saaw nobody" "sa+w"
+build/regexer "somebody sa+w nobody" "sa\+w"
 ```

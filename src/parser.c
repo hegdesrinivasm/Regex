@@ -1,5 +1,7 @@
 #include "parser.h"
 
+#include "utils.h"
+
 #include <stdbool.h>
 
 /**
@@ -100,6 +102,7 @@ static int parser_parse_character(Parser *parser) {
     switch (parser->src[parser->index]) {
         case '\\': /** for escaping the special characters (ex: \*) */
             parser->index++;
+            if (!parser->src[parser->index]) QUIT_WITH_FATAL_MSG("Expected another character after '\\'");
             /* fallthrough */
         default: /** Anything (if the special characters are in the first, then they are directly taken as the characters */
             input = parser->src[parser->index];

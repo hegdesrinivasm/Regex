@@ -69,9 +69,9 @@ void print_memory_usage(void) {
     LOG_INFO("Allocation size: %.4lf %s", size, ext);
 
     size = format_ext_and_get_size(HEADER_SIZE * allocation_count, ext);
-    LOG_DEBUG("Memory used for the header: %.4lf %s", size, ext);
+    LOG_INFO("Memory used for the header: %.4lf %s", size, ext);
 
     size = format_ext_and_get_size(allocated_bytes + (HEADER_SIZE * allocation_count), ext);
-    LOG_DEBUG("Total memory used: %.4lf %s", size, ext);
+    LOG_INFO("Total memory used: %.4lf %s", size, ext);
 }
 
